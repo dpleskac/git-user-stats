@@ -39,6 +39,8 @@ Helena Vondrackova <helena.vondrackova@otherdomain.com>; 1046
 '''
 
 import argparse
+import re
+
 try:
     # python2
     from urlparse import urlparse
@@ -69,10 +71,16 @@ def repo_type(repo):
     if is_local_repo(repo_url) or is_remote_repo(repo_url):
         return repo
 
+def date_type(date):
+    if re.search("^([0-9]{4})-?(1[0-2]|0[1-9])?-?(3[01]|0[1-9]|[12][0-9])?$", date) == None:
+        msg = "%r is not a valid date" % date
+        raise argparse.ArgumentTypeError(msg)
+    return date
+
 def parser():
     parser = argparse.ArgumentParser('print number of user commits contributing to a git repo in a given time period')
-    parser.add_argument('-f', help='count commits FROM specific date YYYY[-MM][-DD], ex. 2015-01-30, 2014')
-    parser.add_argument('-t', help='count commits TO specific date YYYY[-MM][-DD], ex. 2015-01-30, 2014')
+    parser.add_argument('-f', type=date_type, help='count commits FROM specific date YYYY[-MM][-DD], ex. 2015-01-30, 2014')
+    parser.add_argument('-t', type=date_type, help='count commits TO specific date YYYY[-MM][-DD], ex. 2015-01-30, 2014')
     parser.add_argument('-o', type=argparse.FileType('w'), help='output to a file')
     parser.add_argument('repo', type=repo_type, help='repository\'s URL or directory, ex. http://github.com/dpleskac/env, ./mydir/myrepo')
     args = parser.parse_args()
