@@ -40,6 +40,8 @@ Helena Vondrackova <helena.vondrackova@otherdomain.com>; 1046
 
 import argparse
 import re
+import os
+import subprocess
 
 try:
     # python2
@@ -49,6 +51,49 @@ except:
     from urllib.parse import urlparse
 
 
+def repo_get(repo_str):
+    url = is_url_valid(repo_str)
+    if not url.scheme and not url.netloc and url.path:
+        ' local repository '
+        repo_dir = os.path.join(os.getcwd(), url.path)
+
+    elif url.scheme and url.netloc and url.path:
+        ' remote repository '
+        cmd = 'git clone ' + repo_str
+        if subprocess.call(cmd.split()) != 0:
+            print('Failed to clone a repository %s to a local directory' % repo_str)
+            return False
+
+        repo_dir = os.path.splitext(os.path.basename(url.path))[0]
+
+    else:
+        return None
+
+    if not os.path.isdir(repo_dir):
+        print('Local repo directory %s does not exist' % repo_dir)
+        return None
+
+    try:
+        os.chdir(repo_dir)
+    except:
+        print('Can\'t cd into repo directory %s' % repo_dir)
+        return None
+
+    if subprocess.call('git status'.split(), stdout=subprocess.DEVNULL) != 0:
+        print('%s is not a proper git repo' % repo_dir)
+        return False
+
+    return True
+
+def sanity_check():
+    if subprocess.call('git --version'.split(), stdout=subprocess.DEVNULL) != 0:
+        print('Can\'t execute git binary')
+        return False
+    else:
+        return True
+
+''' input validation '''
+
 def is_url_valid(url):
     try:
         result = urlparse(url)
@@ -56,20 +101,12 @@ def is_url_valid(url):
     except:
         return False
 
-def is_local_repo(url):
-    return not url.netloc and url.path
-
-def is_remote_repo(url):
-    return url.scheme and url.netloc and url.path
-
 def repo_type(repo):
-    print('testing repo type', repo)
     repo_url = is_url_valid(repo)
     if not repo_url:
-        msg = "%r is not a valid repository" % repo
+        msg = "%r is not a valid URL" % repo
         raise argparse.ArgumentTypeError(msg)
-    if is_local_repo(repo_url) or is_remote_repo(repo_url):
-        return repo
+    return repo
 
 def date_type(date):
     if re.search("^([0-9]{4})-?(1[0-2]|0[1-9])?-?(3[01]|0[1-9]|[12][0-9])?$", date) == None:
@@ -86,6 +123,18 @@ def parser():
     args = parser.parse_args()
     return args
 
-if __name__ == '__main__':
+def main():
     global args
     args = parser()
+
+    if not sanity_check():
+        return
+
+    homedir = os.getcwd()
+    if not repo_get(args.repo):
+        print('Can\'t get repo')
+        return
+
+
+if __name__ == '__main__':
+    main()
