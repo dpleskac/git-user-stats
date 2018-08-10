@@ -52,8 +52,12 @@ except:
     from urllib.parse import urlparse
 
 
-def user_stats_print(output):
+def user_stats_print(output, date_from, date_to):
     cmd = 'git shortlog -nse'
+    if date_from:
+        cmd = cmd + ' --after ' + date_from
+    if date_to:
+        cmd = cmd + ' --before ' + date_to
     if subprocess.call(cmd.split(), stdout=output) != 0:
         print('Failed to get user statistics')
         return False
@@ -143,7 +147,7 @@ def main():
         print('Can\'t get repo')
         return
 
-    if not user_stats_print(args.o):
+    if not user_stats_print(args.o, args.f, args.t):
         return
 
 
