@@ -41,6 +41,7 @@ Helena Vondrackova <helena.vondrackova@otherdomain.com>; 1046
 import argparse
 import re
 import os
+import sys
 import subprocess
 
 try:
@@ -50,6 +51,13 @@ except:
     # python3
     from urllib.parse import urlparse
 
+
+def user_stats_print(output):
+    cmd = 'git shortlog -nse'
+    if subprocess.call(cmd.split(), stdout=output) != 0:
+        print('Failed to get user statistics')
+        return False
+    return True
 
 def repo_get(repo_str):
     url = is_url_valid(repo_str)
@@ -118,7 +126,7 @@ def parser():
     parser = argparse.ArgumentParser('print number of user commits contributing to a git repo in a given time period')
     parser.add_argument('-f', type=date_type, help='count commits FROM specific date YYYY[-MM][-DD], ex. 2015-01-30, 2014')
     parser.add_argument('-t', type=date_type, help='count commits TO specific date YYYY[-MM][-DD], ex. 2015-01-30, 2014')
-    parser.add_argument('-o', type=argparse.FileType('w'), help='output to a file')
+    parser.add_argument('-o', type=argparse.FileType('w'), default=sys.stdout, help='output to a file')
     parser.add_argument('repo', type=repo_type, help='repository\'s URL or directory, ex. http://github.com/dpleskac/env, ./mydir/myrepo')
     args = parser.parse_args()
     return args
@@ -133,6 +141,9 @@ def main():
     homedir = os.getcwd()
     if not repo_get(args.repo):
         print('Can\'t get repo')
+        return
+
+    if not user_stats_print(args.o):
         return
 
 
