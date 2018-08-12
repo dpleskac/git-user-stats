@@ -63,7 +63,7 @@ def user_stats_print(output, date_from, date_to):
 
     with Popen(cmd.split(), stdout=PIPE, bufsize=1, universal_newlines=True) as p:
         for line in p.stdout:
-            print(' '.join(line.split()[1:]) + '; ' + ''.join(line.split()[0]))
+            print(' '.join(line.split()[1:]) + '; ' + ''.join(line.split()[0]), file=output)
 
     if p.returncode != 0:
         print('Failed to get user statistics')

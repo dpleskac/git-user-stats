@@ -30,5 +30,14 @@ ${TST_CMD} | cmp - golden.output || { echo "Test 2 output differs from golden ou
 
 echo "Test 2 PASSED"
 
+# test output option 
+TST_CMD="${HOME_DIR}/git-user-stats.py -f 2000 -t 2011 -o user-stat.txt spf13-vim"
+
+${TST_CMD} && cmp user-stat.txt golden.output || { echo "Test 3 output differs from golden output"; exit 3; }
+
+rm user-stat.txt
+
+echo "Test 3 PASSED"
+
 # cleanup
 cd ${HOME_DIR} && rm -rf ${TEST_DIR}
