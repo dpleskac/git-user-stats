@@ -3,9 +3,7 @@
 HOME_DIR=${PWD}
 TEST_DIR=$(mktemp -d) && cd ${TEST_DIR} || { echo "Can't create a test directory"; exit 1; }
 
-TST_CMD="${HOME_DIR}/git-user-stats.py -f 2000 -t 2011 https://github.com/spf13/spf13-vim.git"
-
-[ -e golden.putput ] && rm golden.output; cat <<EOF >golden.output
+[ -e golden.putput ] && rm golden.output; cat <<EOF > golden.output
 Steve Francia <steve.francia@gmail.com>; 125
 Richard Bateman <taxilian@gmail.com>; 31
 Ben Loveridge <bloveridge@gmail.com>; 29
@@ -18,8 +16,19 @@ Dusty Leary <dleary@gmail.com>; 1
 Steve Francia <sfrancia@theopenskyproject.com>; 1
 EOF
 
-${TST_CMD} | cmp - golden.output || { echo "Test output differs from golden output"; exit 2; }
+# test remote repo
+TST_CMD="${HOME_DIR}/git-user-stats.py -f 2000 -t 2011 https://github.com/spf13/spf13-vim.git"
 
-cd - && rm -rf ${TEST_DIR}
+${TST_CMD} | cmp - golden.output || { echo "Test 1 output differs from golden output"; exit 2; }
 
-echo "Test PASSED"
+echo "Test 1 PASSED"
+
+# test local repo
+TST_CMD="${HOME_DIR}/git-user-stats.py -f 2000 -t 2011 spf13-vim"
+
+${TST_CMD} | cmp - golden.output || { echo "Test 2 output differs from golden output"; exit 3; }
+
+echo "Test 2 PASSED"
+
+# cleanup
+cd ${HOME_DIR} && rm -rf ${TEST_DIR}
