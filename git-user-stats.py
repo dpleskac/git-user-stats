@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 '''
 Zadani:
 
@@ -77,7 +79,7 @@ def repo_get(repo_str):
     elif url.scheme and url.netloc and url.path:
         ' remote repository '
         cmd = 'git clone ' + repo_str
-        if call(cmd.split()) != 0:
+        if call(cmd.split(), stderr=DNULL) != 0:
             print('Failed to clone a repository %s to a local directory' % repo_str)
             return False
 
