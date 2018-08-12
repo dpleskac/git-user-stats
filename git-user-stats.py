@@ -42,7 +42,7 @@ import argparse
 import re
 import os
 import sys
-import subprocess
+from subprocess import Popen, call, PIPE
 
 try:
     # python2
@@ -58,7 +58,12 @@ def user_stats_print(output, date_from, date_to):
         cmd = cmd + ' --after ' + date_from
     if date_to:
         cmd = cmd + ' --before ' + date_to
-    if subprocess.call(cmd.split(), stdout=output) != 0:
+
+    with Popen(cmd.split(), stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+        for line in p.stdout:
+            print(' '.join(line.split()[1:]) + '; ' + ''.join(line.split()[0]))
+
+    if p.returncode != 0:
         print('Failed to get user statistics')
         return False
     return True
@@ -72,7 +77,7 @@ def repo_get(repo_str):
     elif url.scheme and url.netloc and url.path:
         ' remote repository '
         cmd = 'git clone ' + repo_str
-        if subprocess.call(cmd.split()) != 0:
+        if call(cmd.split()) != 0:
             print('Failed to clone a repository %s to a local directory' % repo_str)
             return False
 
@@ -91,14 +96,14 @@ def repo_get(repo_str):
         print('Can\'t cd into repo directory %s' % repo_dir)
         return None
 
-    if subprocess.call('git status'.split(), stdout=subprocess.DEVNULL) != 0:
+    if call('git status'.split(), stdout=DNULL) != 0:
         print('%s is not a proper git repo' % repo_dir)
         return False
 
     return True
 
 def sanity_check():
-    if subprocess.call('git --version'.split(), stdout=subprocess.DEVNULL) != 0:
+    if call('git --version'.split(), stdout=DNULL) != 0:
         print('Can\'t execute git binary')
         return False
     else:
@@ -137,6 +142,9 @@ def parser():
 
 def main():
     global args
+    global DNULL
+
+    DNULL = open(os.devnull, 'w')
     args = parser()
 
     if not sanity_check():
