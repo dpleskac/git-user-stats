@@ -128,6 +128,35 @@ def repo_type(repo):
     return repo
 
 def date_type(date):
+    '''
+    >>> date_type('2010')
+    '2010'
+    >>> date_type('2010-02')
+    '2010-02'
+    >>> date_type('2010-02-20')
+    '2010-02-20'
+    >>> date_type('2010')
+    '2010'
+    >>> date_type('2010-01')
+    '2010-01'
+    >>> date_type('2010-01-30')
+    '2010-01-30'
+    >>> date_type('2010-01-40')
+    Traceback (most recent call last):
+      File "<input>", line 1, in <module>
+        date_type('2010-01-40')
+      File "git-user-stats/git-user-stats.py", line 133, in date_type
+        raise argparse.ArgumentTypeError(msg)
+    argparse.ArgumentTypeError: '2010-01-40' is not a valid date
+    >>> date_type('2010-13-20')
+    Traceback (most recent call last):
+      File "<input>", line 1, in <module>
+        date_type('2010-13-20')
+      File "git-user-stats/git-user-stats.py", line 133, in date_type
+        raise argparse.ArgumentTypeError(msg)
+    argparse.ArgumentTypeError: '2010-13-20' is not a valid date
+    >>> 
+    '''
     if re.search("^([0-9]{4})-?(1[0-2]|0[1-9])?-?(3[01]|0[1-9]|[12][0-9])?$", date) == None:
         msg = "%r is not a valid date" % date
         raise argparse.ArgumentTypeError(msg)
