@@ -45,6 +45,8 @@ import re
 import os
 import sys
 from subprocess import Popen, call, PIPE
+''' requires pip install iso8601 '''
+import iso8601
 
 try:
     # python2
@@ -127,40 +129,37 @@ def repo_type(repo):
         raise argparse.ArgumentTypeError(msg)
     return repo
 
+def parse_date(date):
+    '''
+    >>> parse_date('2010')
+    '2010'
+    >>> parse_date('201')
+    >>> parse_date('2010-1')
+    '2010-1'
+    >>> parse_date('2010-1-1')
+    '2010-1-1'
+    >>> parse_date('2010-13')
+    >>> parse_date('2010-11-30')
+    '2010-11-30'
+    >>> parse_date('2010-11-31')
+    >>> parse_date('2010-2-28')
+    '2010-2-28'
+    >>> parse_date('2010-2-29')
+    >>>
+    '''
+    try:
+        iso8601.parse_date(date)
+        return date
+    except:
+        pass
+        return None
+
 def date_type(date):
-    '''
-    >>> date_type('2010')
-    '2010'
-    >>> date_type('2010-02')
-    '2010-02'
-    >>> date_type('2010-02-20')
-    '2010-02-20'
-    >>> date_type('2010')
-    '2010'
-    >>> date_type('2010-01')
-    '2010-01'
-    >>> date_type('2010-01-30')
-    '2010-01-30'
-    >>> date_type('2010-01-40')
-    Traceback (most recent call last):
-      File "<input>", line 1, in <module>
-        date_type('2010-01-40')
-      File "git-user-stats/git-user-stats.py", line 133, in date_type
-        raise argparse.ArgumentTypeError(msg)
-    argparse.ArgumentTypeError: '2010-01-40' is not a valid date
-    >>> date_type('2010-13-20')
-    Traceback (most recent call last):
-      File "<input>", line 1, in <module>
-        date_type('2010-13-20')
-      File "git-user-stats/git-user-stats.py", line 133, in date_type
-        raise argparse.ArgumentTypeError(msg)
-    argparse.ArgumentTypeError: '2010-13-20' is not a valid date
-    >>> 
-    '''
-    if re.search("^([0-9]{4})-?(1[0-2]|0[1-9])?-?(3[01]|0[1-9]|[12][0-9])?$", date) == None:
+    if parse_date(date) is None:
         msg = "%r is not a valid date" % date
         raise argparse.ArgumentTypeError(msg)
-    return date
+    else:
+        return date
 
 def parser():
     parser = argparse.ArgumentParser('print number of user commits contributing to a git repo in a given time period')
