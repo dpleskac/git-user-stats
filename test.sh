@@ -2,7 +2,7 @@
 
 # unit test(s)
 ###################
-python3 -m doctest git-user-stats.py || { echo "Unit tests failed"; exit 1; }
+python3 -m doctest -o ELLIPSIS git-user-stats.py || { echo "Unit tests failed"; exit 1; }
 echo "Unit tests PASSED"
 
 # functional tests
@@ -11,7 +11,7 @@ echo "Unit tests PASSED"
 HOME_DIR=${PWD}
 TEST_DIR=$(mktemp -d) && cd ${TEST_DIR} || { echo "Can't create a test directory"; exit 2; }
 
-[ -e golden.putput ] && rm golden.output; cat <<EOF > golden.output
+[ -e golden.output ] && rm golden.output; cat <<EOF > golden.output
 Steve Francia <steve.francia@gmail.com>; 125
 Richard Bateman <taxilian@gmail.com>; 31
 Ben Loveridge <bloveridge@gmail.com>; 29

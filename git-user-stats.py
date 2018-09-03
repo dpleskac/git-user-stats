@@ -44,7 +44,7 @@ import argparse
 import re
 import os
 import sys
-from subprocess import Popen, call, PIPE
+from subprocess import Popen, call, PIPE, DEVNULL
 ''' requires pip install iso8601 '''
 import iso8601
 
@@ -73,6 +73,13 @@ def user_stats_print(output, date_from, date_to):
     return True
 
 def repo_get(repo_str):
+    '''
+    >>> repo_get('htt://github.com/dpleskac/env')
+    Failed to clone a repository htt://github.com/dpleskac/env to a local directory
+    False
+    >>> repo_get('dexempo/hemenex')
+    Local repo directory ...dexempo/hemenex does not exist
+    '''
     url = is_url_valid(repo_str)
     if not url.scheme and not url.netloc and url.path:
         ' local repository '
@@ -81,7 +88,7 @@ def repo_get(repo_str):
     elif url.scheme and url.netloc and url.path:
         ' remote repository '
         cmd = 'git clone ' + repo_str
-        if call(cmd.split(), stderr=DNULL) != 0:
+        if call(cmd.split(), stderr=DEVNULL) != 0:
             print('Failed to clone a repository %s to a local directory' % repo_str)
             return False
 
@@ -100,14 +107,14 @@ def repo_get(repo_str):
         print('Can\'t cd into repo directory %s' % repo_dir)
         return None
 
-    if call('git status'.split(), stdout=DNULL) != 0:
+    if call('git status'.split(), stdout=DEVNULL) != 0:
         print('%s is not a proper git repo' % repo_dir)
         return False
 
     return True
 
 def sanity_check():
-    if call('git --version'.split(), stdout=DNULL) != 0:
+    if call('git --version'.split(), stdout=DEVNULL) != 0:
         print('Can\'t execute git binary')
         return False
     else:
@@ -172,9 +179,7 @@ def parser():
 
 def main():
     global args
-    global DNULL
 
-    DNULL = open(os.devnull, 'w')
     args = parser()
 
     if not sanity_check():
