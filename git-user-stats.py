@@ -47,13 +47,7 @@ import sys
 from subprocess import Popen, call, PIPE, DEVNULL
 ''' requires pip install iso8601 '''
 import iso8601
-
-try:
-    # python2
-    from urlparse import urlparse
-except:
-    # python3
-    from urllib.parse import urlparse
+from urllib.parse import urlparse
 
 
 def user_stats_print(output, date_from, date_to):
@@ -95,17 +89,17 @@ def repo_get(repo_str):
         repo_dir = os.path.splitext(os.path.basename(url.path))[0]
 
     else:
-        return None
+        return False
 
     if not os.path.isdir(repo_dir):
         print('Local repo directory %s does not exist' % repo_dir)
-        return None
+        return False
 
     try:
         os.chdir(repo_dir)
     except:
         print('Can\'t cd into repo directory %s' % repo_dir)
-        return None
+        return False
 
     if call('git status'.split(), stdout=DEVNULL) != 0:
         print('%s is not a proper git repo' % repo_dir)
@@ -158,7 +152,6 @@ def parse_date(date):
         iso8601.parse_date(date)
         return date
     except:
-        pass
         return None
 
 def date_type(date):
@@ -178,8 +171,6 @@ def parser():
     return args
 
 def main():
-    global args
-
     args = parser()
 
     if not sanity_check():
