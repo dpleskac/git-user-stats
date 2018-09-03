@@ -71,8 +71,6 @@ def repo_get(repo_str):
     >>> repo_get('htt://github.com/dpleskac/env')
     Failed to clone a repository htt://github.com/dpleskac/env to a local directory
     False
-    >>> repo_get('dexempo/hemenex')
-    Local repo directory ...dexempo/hemenex does not exist
     '''
     url = is_url_valid(repo_str)
     if not url.scheme and not url.netloc and url.path:
